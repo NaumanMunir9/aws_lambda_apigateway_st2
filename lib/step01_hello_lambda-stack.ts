@@ -16,6 +16,10 @@ export class Step01HelloLambdaStack extends cdk.Stack {
 
     const api = new apigateway.LambdaRestApi(this, "myLambdaEndpoint", {
       handler: hello,
+      proxy: false,
     });
+
+    const items = api.root.addResource("cars");
+    items.addMethod("GET"); // GET /cars
   }
 }
