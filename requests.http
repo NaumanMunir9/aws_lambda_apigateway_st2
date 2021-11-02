@@ -9,4 +9,9 @@ GET https://1sb3esgj81.execute-api.us-east-1.amazonaws.com/prod/cars
 
 
 ### Get Route API-Gateway - Restricted to only GET Request (Proxy=false)
+GET https://1sb3esgj81.execute-api.us-east-1.amazonaws.com/prod/helloworld
+
+
+
+### Get Route API-Gateway - Restricted to only GET Request (Proxy=false)
 GET https://yut5s6mbik.execute-api.us-east-1.amazonaws.com/prod/trucks
