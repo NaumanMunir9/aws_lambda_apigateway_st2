@@ -1,0 +1,626 @@
+Resources:
+  HelloHandlerServiceRole11EF7C63:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/HelloHandler/ServiceRole/Resource
+  HelloHandler2E4FBA4D:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70S3BucketCB7E9E5A
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70S3VersionKeyF55D2277
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70S3VersionKeyF55D2277
+      Role:
+        Fn::GetAtt:
+          - HelloHandlerServiceRole11EF7C63
+          - Arn
+      Handler: hello.handler
+      Runtime: nodejs14.x
+    DependsOn:
+      - HelloHandlerServiceRole11EF7C63
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/HelloHandler/Resource
+      aws:asset:path: /home/mnm/Programming/JavaScript/Bootcamp 2020/AWS-Serverless-with-CDK/Practice-YT/v3-lambda-cdk/step01_hello_lambda/lambda
+      aws:asset:property: Code
+  myLambdaEndpointB38EFEE1:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: myLambdaEndpoint
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Resource
+  myLambdaEndpointCloudWatchRoleE63D14EB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/CloudWatchRole/Resource
+  myLambdaEndpointAccount88179BC8:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - myLambdaEndpointCloudWatchRoleE63D14EB
+          - Arn
+    DependsOn:
+      - myLambdaEndpointB38EFEE1
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Account
+  myLambdaEndpointDeployment8F0B1A109ca3e3e86f3653476e49542fc7793a0a:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - myLambdaEndpointcarsGET545FC68A
+      - myLambdaEndpointcars467614B7
+      - myLambdaEndpointJeepsGET667F5458
+      - myLambdaEndpointJeepsD943D44E
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Deployment/Resource
+  myLambdaEndpointDeploymentStageprod9546AB3F:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+      DeploymentId:
+        Ref: myLambdaEndpointDeployment8F0B1A109ca3e3e86f3653476e49542fc7793a0a
+      StageName: prod
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/DeploymentStage.prod/Resource
+  myLambdaEndpointcars467614B7:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - myLambdaEndpointB38EFEE1
+          - RootResourceId
+      PathPart: cars
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/cars/Resource
+  ? myLambdaEndpointcarsGETApiPermissionStep01HelloLambdaStackmyLambdaEndpoint43229877GETcars39D3B709
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpointB38EFEE1
+            - /
+            - Ref: myLambdaEndpointDeploymentStageprod9546AB3F
+            - /GET/cars
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/cars/GET/ApiPermission.Step01HelloLambdaStackmyLambdaEndpoint43229877.GET..cars
+  ? myLambdaEndpointcarsGETApiPermissionTestStep01HelloLambdaStackmyLambdaEndpoint43229877GETcars71E60CF6
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpointB38EFEE1
+            - /test-invoke-stage/GET/cars
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/cars/GET/ApiPermission.Test.Step01HelloLambdaStackmyLambdaEndpoint43229877.GET..cars
+  myLambdaEndpointcarsGET545FC68A:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: myLambdaEndpointcars467614B7
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - HelloHandler2E4FBA4D
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/cars/GET/Resource
+  myLambdaEndpointJeepsD943D44E:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - myLambdaEndpointB38EFEE1
+          - RootResourceId
+      PathPart: Jeeps
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/Jeeps/Resource
+  ? myLambdaEndpointJeepsGETApiPermissionStep01HelloLambdaStackmyLambdaEndpoint43229877GETJeeps80E48E74
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpointB38EFEE1
+            - /
+            - Ref: myLambdaEndpointDeploymentStageprod9546AB3F
+            - /GET/Jeeps
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/Jeeps/GET/ApiPermission.Step01HelloLambdaStackmyLambdaEndpoint43229877.GET..Jeeps
+  ? myLambdaEndpointJeepsGETApiPermissionTestStep01HelloLambdaStackmyLambdaEndpoint43229877GETJeeps7662554F
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpointB38EFEE1
+            - /test-invoke-stage/GET/Jeeps
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/Jeeps/GET/ApiPermission.Test.Step01HelloLambdaStackmyLambdaEndpoint43229877.GET..Jeeps
+  myLambdaEndpointJeepsGET667F5458:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: myLambdaEndpointJeepsD943D44E
+      RestApiId:
+        Ref: myLambdaEndpointB38EFEE1
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - HelloHandler2E4FBA4D
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint/Default/Jeeps/GET/Resource
+  myLambdaEndpoint240D91DD9:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: myLambdaEndpoint2
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Resource
+  myLambdaEndpoint2CloudWatchRole0FBC13B7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/CloudWatchRole/Resource
+  myLambdaEndpoint2Account4CFF8D7D:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - myLambdaEndpoint2CloudWatchRole0FBC13B7
+          - Arn
+    DependsOn:
+      - myLambdaEndpoint240D91DD9
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Account
+  myLambdaEndpoint2Deployment9C87D7C57c36c819577b87c1b9c3b4f61911edc6:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - myLambdaEndpoint2trollersGETD17F4B8D
+      - myLambdaEndpoint2trollers3EFE4C7C
+      - myLambdaEndpoint2trucksGETE764EBD6
+      - myLambdaEndpoint2trucks56E905A7
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Deployment/Resource
+  myLambdaEndpoint2DeploymentStageprodEA85F976:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+      DeploymentId:
+        Ref: myLambdaEndpoint2Deployment9C87D7C57c36c819577b87c1b9c3b4f61911edc6
+      StageName: prod
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/DeploymentStage.prod/Resource
+  myLambdaEndpoint2trucks56E905A7:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - myLambdaEndpoint240D91DD9
+          - RootResourceId
+      PathPart: trucks
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trucks/Resource
+  ? myLambdaEndpoint2trucksGETApiPermissionStep01HelloLambdaStackmyLambdaEndpoint26A259952GETtrucks80AFFEA5
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpoint240D91DD9
+            - /
+            - Ref: myLambdaEndpoint2DeploymentStageprodEA85F976
+            - /GET/trucks
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trucks/GET/ApiPermission.Step01HelloLambdaStackmyLambdaEndpoint26A259952.GET..trucks
+  ? myLambdaEndpoint2trucksGETApiPermissionTestStep01HelloLambdaStackmyLambdaEndpoint26A259952GETtrucks46F25ACD
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpoint240D91DD9
+            - /test-invoke-stage/GET/trucks
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trucks/GET/ApiPermission.Test.Step01HelloLambdaStackmyLambdaEndpoint26A259952.GET..trucks
+  myLambdaEndpoint2trucksGETE764EBD6:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: myLambdaEndpoint2trucks56E905A7
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - HelloHandler2E4FBA4D
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trucks/GET/Resource
+  myLambdaEndpoint2trollers3EFE4C7C:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - myLambdaEndpoint240D91DD9
+          - RootResourceId
+      PathPart: trollers
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trollers/Resource
+  ? myLambdaEndpoint2trollersGETApiPermissionStep01HelloLambdaStackmyLambdaEndpoint26A259952GETtrollers8DD107AB
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpoint240D91DD9
+            - /
+            - Ref: myLambdaEndpoint2DeploymentStageprodEA85F976
+            - /GET/trollers
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trollers/GET/ApiPermission.Step01HelloLambdaStackmyLambdaEndpoint26A259952.GET..trollers
+  ? myLambdaEndpoint2trollersGETApiPermissionTestStep01HelloLambdaStackmyLambdaEndpoint26A259952GETtrollers2A1854B1
+  : Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - HelloHandler2E4FBA4D
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myLambdaEndpoint240D91DD9
+            - /test-invoke-stage/GET/trollers
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trollers/GET/ApiPermission.Test.Step01HelloLambdaStackmyLambdaEndpoint26A259952.GET..trollers
+  myLambdaEndpoint2trollersGETD17F4B8D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: myLambdaEndpoint2trollers3EFE4C7C
+      RestApiId:
+        Ref: myLambdaEndpoint240D91DD9
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - HelloHandler2E4FBA4D
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/myLambdaEndpoint2/Default/trollers/GET/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/02P0U7DMAxFv2XvmbdqSLzSDfEEYipfYFJTsjZJFTtMU9R/p0kZ6pOPr2zf6wqqwx72mye88la3/S5pHwjSh6DuVc1MMmNnXKdO3rGEqEWdvtwZA1oSCrl5jzLGIjfEPgZNmef51ojxblL5eBrQfrYI6SU6neU8s+YzBWuYy4JBC6nxQzmU66T4sMUch6Gkmns4Rt2THJFJ4Wg6FLriDdJrMZqjSD2av1R3rLX20Yl6pnHwN0uuxF51+dviusD9oWKy/u6f30i+fZulhaZpUs63BBfe/VQPUD1CtbmwMdswGxtL0Cz1F6OgXvx7AQAA
+    Metadata:
+      aws:cdk:path: Step01HelloLambdaStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Parameters:
+  ? AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70S3BucketCB7E9E5A
+  : Type: String
+    Description: S3 bucket for asset "3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70"
+  ? AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70S3VersionKeyF55D2277
+  : Type: String
+    Description: S3 key for asset version "3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70"
+  ? AssetParameters3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70ArtifactHashB0BED029
+  : Type: String
+    Description: Artifact hash for asset "3b724b2013b48baf8ddc8ca5cd46bb4379d305a551a3b11a7c6f1db31b733a70"
+Outputs:
+  myLambdaEndpoint19F73762:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: myLambdaEndpointB38EFEE1
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: myLambdaEndpointDeploymentStageprod9546AB3F
+          - /
+  myLambdaEndpoint2Endpoint3C1D3F62:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: myLambdaEndpoint240D91DD9
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: myLambdaEndpoint2DeploymentStageprodEA85F976
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2

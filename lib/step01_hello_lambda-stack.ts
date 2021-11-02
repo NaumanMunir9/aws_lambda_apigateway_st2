@@ -25,11 +25,13 @@ export class Step01HelloLambdaStack extends cdk.Stack {
     });
 
     const items = api.root.addResource("cars");
-    const items1 = api.root.addResource("helloworld");
+    const items1 = api.root.addResource("Jeeps");
     items.addMethod("GET"); // GET /cars
     items1.addMethod("GET"); // GET /cars
 
     const items2 = api2.root.addResource("trucks");
+    const items21 = api2.root.addResource("trollers");
     items2.addMethod("GET"); // GET /trucks
+    items21.addMethod("GET"); // GET /trucks
   }
 }
